@@ -22,7 +22,11 @@ python main.py
 
 import sys
 import os
-
+import subprocess
+import streamlit as st
+from views.auth_view import render as render_auth    # страница входа
+from views.main_view import render as render_main    # главная страница
+from theme.global_styles import inject_styles        # тёмная CSS-тема
 
 
 # Добавляем папку проекта в sys.path — чтобы Python находил
@@ -36,7 +40,7 @@ def run():
     Использует тот же интерпретатор Python, что и текущий процесс —
     это гарантирует корректную работу внутри virtualenv.
     """
-    import subprocess
+   
  
     # sys.executable — путь к текущему python (в т.ч. внутри venv)
     # __file__       — абсолютный путь к этому файлу
@@ -52,27 +56,7 @@ def run():
     )
  
  
-if __name__ == "__main__" and os.environ.get("STREAMLIT_RUNNING") != "1":
-    import subprocess
- 
-    env = os.environ.copy()
-    env["STREAMLIT_RUNNING"] = "1"   # флаг: сервер уже запущен
- 
-    subprocess.run(
-        [
-            sys.executable,
-            "-m", "streamlit",
-            "run",
-            __file__,
-            "--server.headless", "false",
-        ],
-        env=env,
-        check=True,
-    )
-    sys.exit(0)   # завершаем родительский процесс после старта сервера
 
-
-import streamlit as st
 
 # set_page_config обязан быть первым вызовом Streamlit
 st.set_page_config(
@@ -82,9 +66,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-from views.auth_view import render as render_auth    # страница входа
-from views.main_view import render as render_main    # главная страница
-from theme.global_styles import inject_styles        # тёмная CSS-тема
+
 
 # Инициализация session_state при первом запуске
 if "authenticated" not in st.session_state:
@@ -101,3 +83,24 @@ if st.session_state.authenticated:
     render_main()
 else:
     render_auth()
+
+
+
+if __name__ == "__main__" and os.environ.get("STREAMLIT_RUNNING") != "1":
+  
+ 
+    env = os.environ.copy()
+    env["STREAMLIT_RUNNING"] = "1"   # флаг: сервер уже запущен
+ 
+    subprocess.run(
+        [
+            sys.executable,
+            "-m", "streamlit",
+            "run",
+            __file__,
+            "--server.headless", "false",
+        ],
+        env=env,
+        check=True,
+    )
+    sys.exit(0)   # завершаем родительский процесс после старта сервера
