@@ -11,7 +11,7 @@ import streamlit as st
 from views.auth_view import render as render_auth
 from views.exam_view import render as render_exam   # ← НОВОЕ: страница экзамена
 from theme.global_styles import inject_styles
-
+import subprocess
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 
 st.set_page_config(
-    page_title="НейроЭкзаменатор",
+    page_title="AI EdTech Exam",
     page_icon="🧠",
     layout="centered",
     initial_sidebar_state="collapsed",
@@ -47,8 +47,7 @@ else:
 
 
 if __name__ == "__main__" and os.environ.get("STREAMLIT_RUNNING") != "1":
-    import subprocess
-
+ 
     env = os.environ.copy()
     env["STREAMLIT_RUNNING"] = "1"
 
