@@ -1,101 +1,162 @@
 # 🧠 НейроЭкзаменатор — Фронтенд
 
+Фронтенд-часть системы оценки знаний на **Streamlit (Python)**.
+
+---
+
 ## Структура проекта
 
 ```
 Front/
-├── main.py                       ← точка входа, запускать отсюда
+├── main.py                    # Точка входа. Маршрутизация: auth → main
 │
-├── views/
-│   ├── __init__.py
-│   ├── auth_view.py              ← страница входа (форма логин/пароль)
-│   └── main_view.py              ← главная страница (заглушка)
+├── pages/
+│   ├── auth_page.py           # Страница аутентификации (форма входа)
+│   └── main_page.py           # Главная страница (заглушка)
 │
-├── backend/
-│   ├── __init__.py
-│   └── backend_client.py         ← ВСЕ HTTP-вызовы к бэкенду здесь
+├── api/
+│   └── backend_client.py      # Слой работы с бэкендом (все HTTP-вызовы здесь)
 │
-├── theme/
-│   ├── __init__.py
-│   └── global_styles.py          ← CSS тёмной темы
+├── styles/
+│   └── global_styles.py       # Глобальные CSS-стили тёмной темы
 │
-├── requirements.txt
-└── README.md
+├── requirements.txt           # Зависимости Python
+└── README.md                  # Этот файл
 ```
-
-> ⚠️ Папка называется `views/`, а не `pages/` —  
-> `pages/` зарезервирована Streamlit и вызывает ошибку импорта.
 
 ---
 
-## Запуск
+## Запуск проекта
+
+### 1. Установить зависимости
 
 ```bash
-# 1. Установить зависимости (один раз)
+cd Front
 pip install -r requirements.txt
-
-# 2. Запустить
-streamlit run main.py
 ```
 
-Приложение откроется на `http://localhost:8501`
+### 2. Запустить фронтенд
+
+```bash
+streamlit run main.py
+```
+python main.py
+
+По умолчанию приложение откроется на `http://localhost:8501`.
+
+### 3. Опциональные параметры запуска
+
+```bash
+# Другой порт
+streamlit run main.py --server.port 8502
+
+# Отключить автоматическое открытие браузера
+streamlit run main.py --server.headless true
+```
 
 ---
 
 ## 🔌 Ручки интеграции с бэкендом
 
-Все вызовы к бэкенду — в файле **`backend/backend_client.py`**.
+> Все вызовы к бэкенду сосредоточены в одном файле:  
+> **`backend/backend_client.py`**
 
-### Сменить адрес бэкенда
+### Настройка адреса бэкенда
+
+Откройте `backend/backend_client.py` и измените переменную:
 
 ```python
-# backend/backend_client.py, строка 1
-BACKEND_URL = "http://localhost:8000"   # ← сюда вписать нужный адрес
+BACKEND_URL = "http://localhost:8000"   # ← сюда вписать адрес вашего бэкенда
 ```
 
 ---
 
-### POST /auth — аутентификация
+### Эндпоинт 1 — Аутентификация
 
-```
-POST {BACKEND_URL}/auth
+| Поле     | Значение                        |
+|----------|---------------------------------|
+| Метод    | `POST`                          |
+| URL      | `{BACKEND_URL}/auth`            |
+| Тело     | `{"login": str, "password": str}` |
+
+**Пример запроса:**
+```json
+POST http://localhost:8000/auth
 Content-Type: application/json
 
-{"login": "ivanov", "password": "secret"}
+{
+  "login": "ivanov",
+  "password": "secret123"
+}
 ```
 
-| Результат | HTTP-статус | Тело ответа |
-|-----------|-------------|-------------|
-| Успех     | `200`       | `{"status": "OK"}` |
-| Ошибка    | `401 / 403` | любое |
+**Ожидаемый ответ при успехе (HTTP 200):**
+```json
+{
+  "status": "OK"
+}
+```
 
-При успехе фронт переходит на главную страницу.  
-При любом другом статусе — показывает сообщение об ошибке.
+**При ошибке — любой другой HTTP-статус** (401, 403, 500 и т.д.).  
+Фронт покажет пользователю сообщение об ошибке.
 
 ---
 
-### Добавить новый вызов бэкенда
+## Логика переходов между страницами
 
-Добавьте функцию в `backend/backend_client.py`:
+```
+Открытие приложения
+        │
+        ▼
+authenticated == False?
+   ├─ Да  → показать auth_page.py (форма входа)
+   │          │
+   │          └─ нажата кнопка «Войти»
+   │                │
+   │                └─ POST /auth
+   │                      ├─ 200 OK  → authenticated = True → main_page
+   │                      └─ ошибка  → показать сообщение об ошибке
+   │
+   └─ Нет → показать main_page.py (главная страница)
+                │
+                └─ нажата кнопка «Выйти» → authenticated = False → auth_page
+```
+
+---
+
+## Как добавить новые страницы
+
+1. Создайте файл в `pages/`, например `pages/exam_page.py`, с функцией `render()`.
+2. В `main.py` добавьте импорт и условие маршрутизации.
+
+```python
+from pages.exam_page import render as render_exam
+
+if st.session_state.get("current_page") == "exam":
+    render_exam()
+```
+
+---
+
+## Как добавить новые вызовы бэкенда
+
+Добавьте новую функцию в `backend/backend_client.py`:
 
 ```python
 def get_questions(exam_id: int) -> dict:
-    """GET {BACKEND_URL}/exams/{exam_id}/questions"""
-    response = requests.get(f"{BACKEND_URL}/exams/{exam_id}/questions",
-                            timeout=REQUEST_TIMEOUT)
+    """
+    GET {BACKEND_URL}/exams/{exam_id}/questions
+    Возвращает список вопросов для экзамена.
+    """
+    url = f"{BACKEND_URL}/exams/{exam_id}/questions"
+    response = requests.get(url, timeout=REQUEST_TIMEOUT)
     ...
 ```
 
 ---
 
-### Добавить новую страницу
+## Требования
 
-1. Создайте `views/my_view.py` с функцией `render()`
-2. В `main.py` добавьте импорт и условие:
-
-```python
-from views.my_view import render as render_my
-
-if st.session_state.get("page") == "my":
-    render_my()
-```
+- Python 3.9+
+- Streamlit 1.32+
+- Доступ к интернету (для загрузки Google Fonts)
