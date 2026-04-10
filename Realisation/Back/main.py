@@ -14,7 +14,7 @@ async def health_check():
 
 # Подключаем роутеры для разных функциональностей
 app.include_router(auth.router, prefix="/core", tags=["auth"])
-# app.include_router(upload.router, prefix="/core", tags=["upload"])
+# app.include_router(upload.router, prefix="/gen", tags=["upload"])
 # app.include_router(questions.router, prefix="/core", tags=["questions"])
 
 
