@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 from schemas.upload import UploadResponse
 from services.upload import validate_file, save_file
 
-router = APIRouter(prefix="/gen")
+router = APIRouter()
 
 @router.post("/upload_know_base", response_model=UploadResponse)
 def upload_knowledge_base(file: UploadFile = File(...)):
