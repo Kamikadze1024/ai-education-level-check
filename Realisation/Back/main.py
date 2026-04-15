@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import auth, upload, questions
+from routers import upload_question, auth
 import uvicorn
 
 
@@ -13,11 +13,8 @@ async def health_check():
     return {"status": "healthy"} 
 
 # Подключаем роутеры для разных функциональностей
-app.include_router(auth.router, prefix="/core", tags=["auth"])
-app.include_router(upload.router, prefix="/gen", tags=["upload"])
-app.include_router(questions.router, prefix="/gen", tags=["questions"])
-
-
+app.include_router(auth.router)
+app.include_router(upload_question.router)
 
 # точка входа в программу
 if __name__ == "__main__":

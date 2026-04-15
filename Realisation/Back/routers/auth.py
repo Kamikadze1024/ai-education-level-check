@@ -4,7 +4,7 @@ from services.auth import chek_auth
 
 
 
-router = APIRouter()
+router = APIRouter(prefix="/core")
 
 @router.post("/auth", response_model=AuthResponse)
 def authenticate(auth_request: AuthRequest) -> AuthResponse:
