@@ -1,17 +1,19 @@
 # Временная "база данных"
 Users = {
-    "admin": "admin123",    
-    "user1": "password1",
-    "user2": "password2"
-}
+    "admin": {"password": "secret123", "role": "admin"},
+    "user1": {"password": "password", "role": "student"}
+         }
 
-def chek_auth(login: str, password: str) -> bool:
-    """Проверяет логин и пароль пользователя."""
-    user_password = Users.get(login) # Ищем логин
+def chek_auth(login: str, password: str) -> dict | None:
+    """Проверяет логин и пароль пользователя.
+    Возвращаем данные пользователя если всё ок, None если нет."""
+  
+    user = Users.get(login) # Ищем логин
     
-    if user_password is None:
-        return False
+    if user is None:
+        return None  # Логин не найден
     
-    return user_password == password  # Сравниваем пароли
-
+    if user["password"] != password:
+        return None  # Пароль не верный
     
+    return user
