@@ -2,10 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 class AuthRequest(BaseModel):
-    login: str
-    password: str
+    login: str # логин пользователя
+    password: str # пароль пользователя
 
 class AuthResponse(BaseModel):
-    result: str 
-    role : Optional[str] = None # None если result="fail" или ошибка
+    result: str # результат аутентификации: "OK" / "Fail" / "Error"
+    role : Optional[str] = None # роль пользователя: "admin" / "student" / None если не прошёл
     
