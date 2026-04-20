@@ -1,12 +1,15 @@
 from fastapi import FastAPI
-from routers import upload_question, auth
+from routers import upload_question, auth, exams
+from middleware.logging import log_requests 
+from starlette.middleware.base import BaseHTTPMiddleware
 import uvicorn
-
 
 # Создаем FastAPI приложение
 app = FastAPI(
     title="AI Ed Tech Exam API"
 )
+
+app.add_middleware(BaseHTTPMiddleware, dispatch=log_requests) # добавляем middleware для логирования запросов
 
 @app.get("/health")
 async def health_check():
@@ -15,6 +18,8 @@ async def health_check():
 # Подключаем роутеры для разных функциональностей
 app.include_router(auth.router)
 app.include_router(upload_question.router)
+app.include_router(exams.router) 
+
 
 # точка входа в программу
 if __name__ == "__main__":

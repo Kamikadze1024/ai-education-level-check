@@ -8,14 +8,14 @@ class QuestionsRequest(BaseModel):
 
 # --- Ответ ---
 class Answer(BaseModel):
-    answ_txt: str
+    answ_txt: str # текст ответа
 
 class Question(BaseModel):
-    question_num: int
-    question_txt: str
-    correct_answs: list[Answer]
-    not_correct_answs: list[Answer]
+    question_num: int # номер вопроса
+    question_txt: str # текст вопроса
+    correct_answs: list[Answer] # правильные ответы
+    not_correct_answs: list[Answer] # неправильные ответы
 
 class QuestionsResponse(BaseModel):
     msg_type: str # просто название поля (постоянно)
-    questions: list[Question]
+    questions: list[Question] # список вопросов с ответами
