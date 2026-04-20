@@ -30,3 +30,4 @@ def generate_questions(
 
 #  Превращаем словарь в Pydantic-модель (для проверки структуры)
 #  return QuestionsResponse(**data)
+#  
