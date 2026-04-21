@@ -7,5 +7,6 @@ class AuthRequest(BaseModel):
 
 class AuthResponse(BaseModel):
     result: str # результат аутентификации: "OK" / "Fail" / "Error"
-    role : Optional[str] = None # роль пользователя: "admin" / "student" / None если не прошёл
+    # роль пользователя: "admin" / "student" / None если не прошёл
+    role : Optional[str] = None 
     

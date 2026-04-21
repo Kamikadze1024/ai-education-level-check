@@ -9,10 +9,11 @@ app = FastAPI(
     title="AI Ed Tech Exam API"
 )
 
-app.add_middleware(BaseHTTPMiddleware, dispatch=log_requests) # добавляем middleware для логирования запросов
+# добавляем middleware для логирования запросов
+app.add_middleware(BaseHTTPMiddleware, dispatch=log_requests) 
 
 @app.get("/health")
-async def health_check():
+def health_check():
     return {"status": "healthy"} 
 
 # Подключаем роутеры для разных функциональностей

@@ -14,9 +14,9 @@ router = APIRouter(prefix="/gen")
 @router.post("/upload_know_base", response_model=UploadResponse)
 def upload_knowledge_base(file: UploadFile = File(...)):
     """
-POST /gen/upload_know_base
-Принимаем файл, проверяем, сохраняем на диск
-"""      
+    POST /gen/upload_know_base
+    Принимаем файл, проверяем, сохраняем на диск
+    """      
     try:
         # проверяем расширение файла
         if not validate_file(file.filename):

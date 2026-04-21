@@ -3,10 +3,10 @@ from schemas.auth import AuthRequest, AuthResponse
 from services.auth import chek_auth
 
 
-
 router = APIRouter(prefix="/core") # все роуты этого файла начинаются с /core
 
-@router.post("/auth", response_model=AuthResponse) # обрабатываем POST /core/auth
+# обрабатываем POST /core/auth
+@router.post("/auth", response_model=AuthResponse) 
 def authenticate(auth_request: AuthRequest) -> AuthResponse:
     try:
         # вызываем сервис проверки логина и пароля
@@ -22,7 +22,8 @@ def authenticate(auth_request: AuthRequest) -> AuthResponse:
        
     except Exception:
         # непредвиденная ошибка
-        return AuthResponse(result="Error, что-то пошло не так...", role=None)  # "Oops, что-то пошло не так..."
+        # "Oops, что-то пошло не так..."
+        return AuthResponse(result="Error, что-то пошло не так...", role=None)
     
     
         
