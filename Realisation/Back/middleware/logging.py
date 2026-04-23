@@ -23,7 +23,13 @@ async def log_requests(request: Request, call_next):
 
     # читаем тело запроса (входные параметры)
     body = await request.body()
-    body_str = body.decode("utf-8") if body else "нет тела"
+    # body_str = body.decode("utf-8") if body else "нет тела"
+
+    try:
+        body_str = body.decode("utf-8")
+    except UnicodeDecodeError:
+        body_str = f"<бинарные данные, {len(body)} байт>"
+
 
     # --- выполняем запрос ---
     response = await call_next(request)
