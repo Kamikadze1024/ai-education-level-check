@@ -30,7 +30,7 @@ POST /gen/upload_know_base
 
         # успех — HTTP 200
         return UploadResponse(
-            result="ok",
+            result="ок",
             filename=file.filename,
             message=f"Файл сохранён: {file_path}"
         )
