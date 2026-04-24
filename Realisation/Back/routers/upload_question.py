@@ -61,25 +61,18 @@ def get_questions(request: QuestionsRequest):
                 detail="Кол-во правильных ответов должно быть меньше общего кол-ва ответов"
             )
 
-        questions = generate_questions(
+        # генерируем вопросы из мок-набора
+        return generate_questions(
             num_questions=request.num_questions,
             num_answ_per_one_quest=request.num_answ_per_one_quest,
             num_correct_answ_per_one_quest=request.num_correct_answ_per_one_quest
         )
 
-        # заглушка возвращает None — обрабатываем отдельно
-        if questions is None:
-            raise HTTPException(
-                status_code=501,  # функционал ещё не реализован
-                detail="Генерация вопросов ещё не реализована"
-            )
-
-        return questions
-
     except HTTPException:
         raise  # пробрасываем дальше, не перехватываем
 
     except Exception:
+      
         raise HTTPException(
             status_code=500,
             detail="Что-то пошло не так при генерации вопросов..."
