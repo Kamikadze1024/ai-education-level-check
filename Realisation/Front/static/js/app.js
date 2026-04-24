@@ -617,6 +617,7 @@ const Admin = {
 
     try {
       const { ok, data } = await Api.post("/api/save_questions", {
+        msg_type: "questions_list",
         questions: this.generatedQuestions,
       });
 
