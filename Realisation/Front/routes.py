@@ -103,6 +103,14 @@ def register_routes(app: Flask):
     @app.route("/api/get_available_exams", methods=["GET"])
     def get_available_exams():
         return _proxy_get("/exam/get_available_exams")
+    
+
+    # ─── Student: Get Exam By ID ───────────────────────────────────────────────
+
+    @app.route("/api/get_exam_by_id", methods=["POST"])
+    def get_exam_by_id():
+        data = request.get_json()
+        return _proxy_post("/exam/get_exam_by_id", json=data)
 
     # ─── Student: Execute Exam ─────────────────────────────────────────────────
 

@@ -676,11 +676,21 @@ const Student = {
     this.loadExams();
   },
 
-  reset() {
+reset() {
     this.selectedExamId  = null;
     this.currentExamData = null;
+
+    // сбрасываем кнопку сдачи экзамена
+    const btn    = $("#btn-submit-exam");
+    const text   = btn.querySelector(".btn__text");
+    const loader = btn.querySelector(".btn__loader");
+    btn.disabled = false;
+    loader.classList.add("hidden");
+    text.textContent = "Сдать экзамен";
+
     this._switchStudentPanel("exams");
   },
+
 
   /* ── Load Available Exams ─────────────────────────────────────────────── */
   async loadExams() {
@@ -768,23 +778,23 @@ const Student = {
       return;
     }
 
-    // In real scenario we'd fetch exam questions by ID.
-    // The backend's /exam/get_available_exams doesn't return questions,
-    // but since the spec doesn't include a "get exam by ID" endpoint,
-    // we pass the selected exam ID in the submit payload.
-    // We show the exam panel and let user answer questions loaded from the exam.
+    // запрашиваем вопросы экзамена у бэка по ID
+    const { ok, data } = await Api.post("/api/get_exam_by_id", {
+      exam_id: this.selectedExamId
+    });
 
-    // NOTE: The backend spec doesn't provide a "fetch questions for exam" endpoint.
-    // Based on the spec we assume the exam questions come from /exam/execute's context,
-    // so we show a placeholder — in production you'd call a GET /exam/get_exam?id=X
-    // For this implementation we call a reasonable GET to get exam details.
-    
-    this._renderExamPlaceholder();
+    if (!ok || !data.questions) {
+      Toast.error("Не удалось загрузить экзамен");
+      return;
+    }
+
+    // рендерим реальные вопросы из бэка
+    this._renderExamQuestions(data.questions);
     this._switchStudentPanel("exam");
     $("#exam-title").textContent = `Экзамен #${this.selectedExamId}`;
   },
-
-  /**
+  
+    /**
    * Renders a placeholder exam UI.
    * In production, replace with real question fetching from the backend.
    * The spec's /exam/execute accepts answers, so we build UI here.
@@ -808,6 +818,51 @@ const Student = {
     `;
     this.currentExamData = { examId: this.selectedExamId, answers: [] };
   },
+
+_renderExamQuestions(questions) {
+    const container = $("#exam-questions-list");
+    container.innerHTML = "";
+
+    const cardsHtml = questions.map(q => {
+      const allAnswers = [
+        ...q.correct_answs,
+        ...q.not_correct_answs
+      ];
+
+      const answersHtml = allAnswers.map(a => `
+        <div class="exam-option"
+             data-question-num="${q.question_num}"
+             data-answ-txt="${a.answ_txt}">
+          <span class="exam-option__check"></span>
+          <span class="exam-option__text">${a.answ_txt}</span>
+        </div>
+      `).join("");
+
+      return `
+        <div class="exam-q-card">
+          <div class="exam-q-card__num">Вопрос ${q.question_num}</div>
+          <div class="exam-q-card__text">${q.question_txt}</div>
+          <div class="exam-options">${answersHtml}</div>
+        </div>
+      `;
+    }).join("");
+
+    container.innerHTML = cardsHtml;
+
+    // клонируем контейнер — это удаляет ВСЕ старые обработчики
+    const fresh = container.cloneNode(true);
+    container.parentNode.replaceChild(fresh, container);
+
+    // вешаем обработчик на чистый контейнер
+    fresh.addEventListener("click", e => {
+      const option = e.target.closest(".exam-option");
+      if (!option) return;
+      option.classList.toggle("selected");
+    });
+
+    this.currentExamData = { examId: this.selectedExamId, answers: [] };
+  },
+
 
   showExamsList() {
     this._switchStudentPanel("exams");
