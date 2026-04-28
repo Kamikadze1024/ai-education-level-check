@@ -1,162 +1,126 @@
-# 🧠 НейроЭкзаменатор — Фронтенд
+# AI EdTech Exam — Frontend
 
-Фронтенд-часть системы оценки знаний на **Streamlit (Python)**.
+Корпоративная платформа для тестирования знаний.  
+Frontend на Python (Flask + pywebview), подключается к бэкенду на `localhost:8000`.
+
+---
+
+## Стек
+
+| Слой | Технология |
+|------|-----------|
+| UI-обёртка | pywebview 5 (нативное окно) |
+| Веб-сервер | Flask 3 (локальный прокси) |
+| Стили | CSS Custom Properties, тёмная/светлая тема |
+| Иконки | Phosphor Icons (CDN) |
+| Шрифты | Syne + DM Sans (Google Fonts) |
+| Логика | Vanilla JS ES2022 (SPA) |
 
 ---
 
 ## Структура проекта
 
 ```
-Front/
-├── main.py                    # Точка входа. Маршрутизация: auth → main
-│
-├── pages/
-│   ├── auth_page.py           # Страница аутентификации (форма входа)
-│   └── main_page.py           # Главная страница (заглушка)
-│
-├── api/
-│   └── backend_client.py      # Слой работы с бэкендом (все HTTP-вызовы здесь)
-│
-├── styles/
-│   └── global_styles.py       # Глобальные CSS-стили тёмной темы
-│
-├── requirements.txt           # Зависимости Python
-└── README.md                  # Этот файл
+ai_edtech_exam/
+├── main.py              # Точка входа — запускает Flask + pywebview
+├── app.py               # Flask application factory
+├── routes.py            # HTTP-маршруты, прокси к бэкенду
+├── requirements.txt
+├── README.md
+├── static/
+│   ├── css/
+│   │   └── main.css     # Все стили
+│   └── js/
+│       └── app.js       # SPA-логика
+└── templates/
+    └── index.html       # HTML-оболочка
 ```
 
 ---
 
-## Запуск проекта
+## Быстрый старт
 
-### 1. Установить зависимости
+### 1. Убедитесь, что бэкенд запущен
 
 ```bash
-cd Front
+# Бэкенд должен быть доступен на http://localhost:8000
+```
+
+### 2. Создайте виртуальное окружение
+
+```bash
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# macOS / Linux
+source venv/bin/activate
+```
+
+### 3. Установите зависимости
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Запустить фронтенд
+> **Windows**: для pywebview может потребоваться `pip install pywebview[cef]`  
+> **Linux**: потребуется `pip install pywebview[gtk]` и пакеты `python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-webkit2-4.0`  
+> **macOS**: работает из коробки через WebKit
+
+### 4. Запустите приложение
 
 ```bash
-streamlit run main.py
-```
 python main.py
+```
 
-По умолчанию приложение откроется на `http://localhost:8501`.
+Откроется нативное окно 1440×900.
 
-### 3. Опциональные параметры запуска
+---
+
+## Запуск только браузерной версии (без pywebview)
+
+Если pywebview не нужен, можно запустить Flask напрямую и открыть в браузере:
 
 ```bash
-# Другой порт
-streamlit run main.py --server.port 8502
-
-# Отключить автоматическое открытие браузера
-streamlit run main.py --server.headless true
+python -c "from app import create_app; create_app().run(port=5050, debug=True)"
+# затем откройте http://127.0.0.1:5050
 ```
 
 ---
 
-## 🔌 Ручки интеграции с бэкендом
+## Настройка адреса бэкенда
 
-> Все вызовы к бэкенду сосредоточены в одном файле:  
-> **`backend/backend_client.py`**
-
-### Настройка адреса бэкенда
-
-Откройте `backend/backend_client.py` и измените переменную:
+Адрес бэкенда задаётся в `routes.py`:
 
 ```python
-BACKEND_URL = "http://localhost:8000"   # ← сюда вписать адрес вашего бэкенда
+BACKEND_URL = "http://localhost:8000"
 ```
 
 ---
 
-### Эндпоинт 1 — Аутентификация
+## Функциональность
 
-| Поле     | Значение                        |
-|----------|---------------------------------|
-| Метод    | `POST`                          |
-| URL      | `{BACKEND_URL}/auth`            |
-| Тело     | `{"login": str, "password": str}` |
+### Авторизация
+- Поле логина, пароля с show/hide
+- Чекбокс «Запомнить меня» (сохраняет в localStorage)
+- Обработка: `fail`, `admin`, `student`, недоступный сервер
 
-**Пример запроса:**
-```json
-POST http://localhost:8000/auth
-Content-Type: application/json
+### Администратор
+1. **Загрузка базы знаний** — drag&drop / выбор файла, progress bar, PDF/TXT/DOC/DOCX
+2. **Генерация вопросов** — spinbox'ы (кол-во вопросов, ответов, правильных)
+3. **Просмотр вопросов** — карточки с правильными/неправильными ответами, кнопка сохранения
 
-{
-  "login": "ivanov",
-  "password": "secret123"
-}
-```
-
-**Ожидаемый ответ при успехе (HTTP 200):**
-```json
-{
-  "status": "OK"
-}
-```
-
-**При ошибке — любой другой HTTP-статус** (401, 403, 500 и т.д.).  
-Фронт покажет пользователю сообщение об ошибке.
+### Студент
+1. **Список экзаменов** — таблица с radio-кнопками
+2. **Прохождение экзамена** — чекбоксы ответов, отправка, результат
 
 ---
 
-## Логика переходов между страницами
-
-```
-Открытие приложения
-        │
-        ▼
-authenticated == False?
-   ├─ Да  → показать auth_page.py (форма входа)
-   │          │
-   │          └─ нажата кнопка «Войти»
-   │                │
-   │                └─ POST /auth
-   │                      ├─ 200 OK  → authenticated = True → main_page
-   │                      └─ ошибка  → показать сообщение об ошибке
-   │
-   └─ Нет → показать main_page.py (главная страница)
-                │
-                └─ нажата кнопка «Выйти» → authenticated = False → auth_page
-```
-
----
-
-## Как добавить новые страницы
-
-1. Создайте файл в `pages/`, например `pages/exam_page.py`, с функцией `render()`.
-2. В `main.py` добавьте импорт и условие маршрутизации.
-
-```python
-from pages.exam_page import render as render_exam
-
-if st.session_state.get("current_page") == "exam":
-    render_exam()
-```
-
----
-
-## Как добавить новые вызовы бэкенда
-
-Добавьте новую функцию в `backend/backend_client.py`:
-
-```python
-def get_questions(exam_id: int) -> dict:
-    """
-    GET {BACKEND_URL}/exams/{exam_id}/questions
-    Возвращает список вопросов для экзамена.
-    """
-    url = f"{BACKEND_URL}/exams/{exam_id}/questions"
-    response = requests.get(url, timeout=REQUEST_TIMEOUT)
-    ...
-```
-
----
-
-## Требования
-
-- Python 3.9+
-- Streamlit 1.32+
-- Доступ к интернету (для загрузки Google Fonts)
+## UI-особенности
+- Тёмная и светлая тема (сохраняется в localStorage)
+- Toast-уведомления (4 типа)
+- Modal-окна с анимацией
+- Loading-screen при запуске
+- Адаптация под FullHD (1440px)
+- Плавные CSS-анимации везде
