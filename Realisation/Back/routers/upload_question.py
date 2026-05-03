@@ -1,10 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from schemas.upload import UploadResponse
-from services.upload import validate_file, save_file
+from services.upload import validate_file, save_file, load_knowledge_base
 from schemas.questions import QuestionsRequest, QuestionsResponse
 from services.questions import generate_questions
 from schemas.save_questions import SaveQuestionsRequest, SaveQuestionsResponse
 from services.save_questions import save_questions
+
 
 
 
@@ -28,11 +29,14 @@ def upload_knowledge_base(file: UploadFile = File(...)):
         # сохраняем файл на диск
         file_path = save_file(file)
 
+        # звгружаем базу знаний из папки uploads через функцию из loader.py, сохраняем чанки в глобальную переменную
+        load_knowledge_base()
+
         # успех — HTTP 200
         return UploadResponse(
             result="ок",
             filename=file.filename,
-            message=f"Файл сохранён: {file_path}"
+            message=f"Файл сохранён: {file_path}. База знаний загружена."
         )
 
     except HTTPException:
