@@ -1,5 +1,6 @@
 from services.save_questions import QUESTIONS_STORAGE
 
+
 def check_answers(answers: list[dict]) -> dict:
     """
     Проверяем ответы пользователя по сохранённым вопросам.

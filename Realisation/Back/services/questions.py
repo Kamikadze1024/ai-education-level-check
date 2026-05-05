@@ -1,12 +1,12 @@
 import random
 import json
 from schemas.questions import QuestionsResponse, Question, Answer
-from LLM.loader import gen_questions          
-import services.upload as upload_service   
+from LLM.loader import gen_questions
+import services.upload as upload_service
 
-# Захардкоженные наборы вопросов 
+# Захардкоженные наборы вопросов
 # MOCK_QUESTIONS_SETS = [
-#     # Набор 1 
+#     # Набор 1
 #     {
 #         "msg_type": "questions_list",
 #         "questions": [
@@ -48,7 +48,7 @@ import services.upload as upload_service
 #             }
 #         ]
 #     },
-#     # Набор 2 
+#     # Набор 2
 #     {
 #         "msg_type": "questions_list",
 #         "questions": [
@@ -90,7 +90,7 @@ import services.upload as upload_service
 #             }
 #         ]
 #     },
-#     # Набор 3 
+#     # Набор 3
 #     {
 #         "msg_type": "questions_list",
 #         "questions": [
@@ -166,26 +166,25 @@ import services.upload as upload_service
 #         msg_type="questions_list",
 #         questions=questions
 #     )
-    
+
+
 def generate_questions(
     num_questions: int,
     num_answ_per_one_quest: int,
-    num_correct_answ_per_one_quest: int
+    num_correct_answ_per_one_quest: int,
 ) -> QuestionsResponse:
     """Генерируем вопросы через GigaChat на основе загруженных чанков."""
 
     chunks = upload_service.loaded_chunks
 
-   
     # вызываем gen_questions из LLM/loader.py
     raw_json = gen_questions(
         chunks=chunks,
         n=num_questions,
         m=num_answ_per_one_quest,
-        k=num_correct_answ_per_one_quest
+        k=num_correct_answ_per_one_quest,
     )
 
     # парсим JSON и превращаем в Pydantic-схему
     data = json.loads(raw_json)
     return QuestionsResponse(**data)
-   

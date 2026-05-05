@@ -1,38 +1,41 @@
-from langchain_community.document_loaders import DirectoryLoader, TextLoader, UnstructuredWordDocumentLoader
+from langchain_community.document_loaders import (
+    DirectoryLoader,
+    TextLoader,
+    UnstructuredWordDocumentLoader,
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from gigachat import GigaChat
 from config import GIGA_API_KEY
 
+
 def loadKnownBase(directory_path):
-    """загрузка всех файлов из директории
-        """
-    
+    """загрузка всех файлов из директории"""
+
     all_docs = []
-    
+
     # txt
     txt_loader = DirectoryLoader(
-    directory_path,
-    glob="**/*.txt",
-    loader_cls=TextLoader,
-    loader_kwargs={"encoding": "utf-8"},  
-    show_progress=True,  
-    use_multithreading=True,     
-)
+        directory_path,
+        glob="**/*.txt",
+        loader_cls=TextLoader,
+        loader_kwargs={"encoding": "utf-8"},
+        show_progress=True,
+        use_multithreading=True,
+    )
     all_docs.extend(txt_loader.load())
-
 
     # docx
     word_loader = DirectoryLoader(
-    directory_path,
-    glob="**/*.docx",
-    loader_cls=UnstructuredWordDocumentLoader,
-    show_progress=True,  
-    use_multithreading=True,
-    exclude=["**/~$*.docx"]
-)
+        directory_path,
+        glob="**/*.docx",
+        loader_cls=UnstructuredWordDocumentLoader,
+        show_progress=True,
+        use_multithreading=True,
+        exclude=["**/~$*.docx"],
+    )
 
-    all_docs.extend(word_loader.load())    
+    all_docs.extend(word_loader.load())
 
     # doc
     doc_loader = DirectoryLoader(
@@ -41,17 +44,16 @@ def loadKnownBase(directory_path):
         loader_cls=UnstructuredWordDocumentLoader,
         show_progress=True,
         use_multithreading=True,
-        exclude=["**/~$*.doc"]
+        exclude=["**/~$*.doc"],
     )
     all_docs.extend(doc_loader.load())
 
     # Количество документов
     print(f"Загружено документов: {len(all_docs)}")
 
-      # Разбиение для LLM на чанки 
+    # Разбиение для LLM на чанки
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
+        chunk_size=1000, chunk_overlap=200
     )
 
     chunks = splitter.split_documents(all_docs)
@@ -60,14 +62,12 @@ def loadKnownBase(directory_path):
         print(f"\n--- Чанк {i} ---")
         print(chunk.page_content)
 
-    return chunks      
-
+    return chunks
 
 
 def gen_questions(chunks, n, m, k):
-    """генерация вопросов
-    """
-    
+    """генерация вопросов"""
+
     document_text = "\n\n".join(chunk.page_content for chunk in chunks)
 
     prompt = f"""
@@ -99,11 +99,8 @@ def gen_questions(chunks, n, m, k):
     }}
            
     """
-    
-    with GigaChat(
-        credentials=GIGA_API_KEY,
-        verify_ssl_certs=False
-    ) as giga:
+
+    with GigaChat(credentials=GIGA_API_KEY, verify_ssl_certs=False) as giga:
         response = giga.chat(prompt)
 
     return response.choices[0].message.content

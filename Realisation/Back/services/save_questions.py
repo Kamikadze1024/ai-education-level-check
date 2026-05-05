@@ -2,6 +2,7 @@
 
 QUESTIONS_STORAGE = []
 
+
 def save_questions(data: dict) -> int:
     """
     Сохраняем список вопросов и ответов в хранилище.

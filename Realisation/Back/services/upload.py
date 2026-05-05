@@ -3,7 +3,6 @@ import shutil
 from fastapi import UploadFile
 from LLM.loader import loadKnownBase
 
-
 # Папка для сохранения файлов
 UPLOAD_DIR = "uploads"
 
@@ -13,11 +12,13 @@ EXTENSIONS = {".pdf", ".docx", ".txt", ".doc", ".md"}
 # хранения загруженных чанков
 loaded_chunks = []
 
+
 def validate_file(filename: str) -> bool:
     """Проверяем, что расширение файла разрешено"""
 
     _, ext = os.path.splitext(filename)
     return ext.lower() in EXTENSIONS
+
 
 def save_file(file: UploadFile) -> str:
     """Сохраняем файл на диск и возвращаем путь к нему"""
@@ -28,9 +29,9 @@ def save_file(file: UploadFile) -> str:
     # Открываем файл на диск и копируем в него содержимое загрузки
 
     with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)       
+        shutil.copyfileobj(file.file, buffer)
 
-    return file_path    
+    return file_path
 
 
 def load_knowledge_base() -> int:
@@ -48,7 +49,3 @@ def load_knowledge_base() -> int:
     loaded_chunks = chunks
 
     return len(chunks)
-
-
-
-    
