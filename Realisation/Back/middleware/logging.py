@@ -8,10 +8,11 @@ logging.basicConfig(
     format="%(asctime)s | %(message)s",  # метка времени | сообщение
     handlers=[
         logging.FileHandler("app.log", encoding="utf-8"),  # пишем в файл
-        logging.StreamHandler()                             # пишем в консоль
-    ]
+        logging.StreamHandler(),  # пишем в консоль
+    ],
 )
 logger = logging.getLogger(__name__)
+
 
 async def log_requests(request: Request, call_next):
     """
@@ -29,7 +30,6 @@ async def log_requests(request: Request, call_next):
         body_str = body.decode("utf-8")
     except UnicodeDecodeError:
         body_str = f"<бинарные данные, {len(body)} байт>"
-
 
     # --- выполняем запрос ---
     response = await call_next(request)
