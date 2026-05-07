@@ -26,7 +26,8 @@ def upload_knowledge_base(file: UploadFile = File(...)):
         # сохраняем файл на диск
         file_path = save_file(file)
 
-        # звгружаем базу знаний из папки uploads через функцию из loader.py, сохраняем чанки в глобальную переменную
+        # загружаем базу знаний из папки uploads через функцию из loader.py, сохраняем
+        # чанки в глобальную переменную
         load_knowledge_base()
 
         # успех — HTTP 200

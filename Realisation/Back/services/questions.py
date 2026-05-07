@@ -173,7 +173,7 @@ def generate_questions(
     num_answ_per_one_quest: int,
     num_correct_answ_per_one_quest: int,
 ) -> QuestionsResponse:
-    """Генерируем вопросы через GigaChat на основе загруженных чанков."""
+    """Генерируем вопросы  на основе загруженных чанков."""
 
     chunks = upload_service.loaded_chunks
 
@@ -185,6 +185,25 @@ def generate_questions(
         k=num_correct_answ_per_one_quest,
     )
 
-    # парсим JSON и превращаем в Pydantic-схему
-    data = json.loads(raw_json)
-    return QuestionsResponse(**data)
+    #  парсим JSON и превращаем в Pydantic-схему (для работы с GigaChat, который возвращает чистый JSON)
+
+    # data = json.loads(raw_json)
+    # return QuestionsResponse(**data)
+
+    # для работы с локальной моделью, которая может оборачивать JSON в markdown-строку ```json ... ```
+    try:
+        # убираем markdown-обёртку ```json ... ``` если модель её добавила
+        cleaned = raw_json.strip()
+        if cleaned.startswith("```"):
+            cleaned = cleaned.split("```")[1]  # берём что между ```
+            if cleaned.startswith("json"):
+                cleaned = cleaned[4:]  # убираем слово json
+            cleaned = cleaned.strip()
+
+        data = json.loads(cleaned)
+        return QuestionsResponse(**data)
+
+    except Exception as e:
+        print(f"ОШИБКА парсинга JSON: {e}")
+        print(f"Сырой ответ был: {raw_json}")
+        raise

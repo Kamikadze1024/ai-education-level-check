@@ -4,9 +4,10 @@ from langchain_community.document_loaders import (
     UnstructuredWordDocumentLoader,
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+import requests
 
-from gigachat import GigaChat
-from config import GIGA_API_KEY
+# from gigachat import GigaChat
+# from config import GIGA_API_KEY
 
 
 def loadKnownBase(directory_path):
@@ -73,7 +74,8 @@ def gen_questions(chunks, n, m, k):
     prompt = f"""
     
     Ты — ассистент по созданию образовательных тестов. 
-    Ты получаешь текст документа и генерируешь тестовые вопросы строго по его содержанию. 
+    Ты получаешь текст документа и генерируешь тестовые вопросы СТРОГО по его содержанию. Не придумывай ничего  
+    от себя — тестовые вопросы только по тому что есть в тексте.
     Отвечай ТОЛЬКО валидным JSON без пояснений, комментариев и markdown-блоков.
 
     На основе следующего текста {document_text} сгенерируй {n} тестовых вопросов.
@@ -99,8 +101,22 @@ def gen_questions(chunks, n, m, k):
     }}
            
     """
+    # для GigaChat
+    # with GigaChat(credentials=GIGA_API_KEY, verify_ssl_certs=False) as giga:
+    #     response = giga.chat(prompt)
 
-    with GigaChat(credentials=GIGA_API_KEY, verify_ssl_certs=False) as giga:
-        response = giga.chat(prompt)
+    # return response.choices[0].message.content
 
-    return response.choices[0].message.content
+    # локальная модель через LM Studio
+    url = "http://localhost:1234/v1/chat/completions"
+
+    payload = {
+        "model": "qwen/qwen2.5-vl-7b",  # имя модели
+        "messages": [{"role": "user", "content": prompt}],
+    }
+
+    response = requests.post(url, json=payload)
+    response.raise_for_status()
+
+    result = response.json()
+    return result["choices"][0]["message"]["content"]
