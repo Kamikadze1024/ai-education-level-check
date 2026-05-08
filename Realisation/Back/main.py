@@ -22,10 +22,12 @@ app.include_router(upload_question.router)
 app.include_router(exams.router)
 
 
-# точка входа в программу
+# !!!точка входа в программу
 if __name__ == "__main__":
     print("Backend")
 
     uvicorn.run(
         "main:app", host="127.0.0.1", port=8000, log_level="info", reload=True
     )
+
+

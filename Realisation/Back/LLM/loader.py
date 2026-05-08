@@ -6,6 +6,8 @@ from langchain_community.document_loaders import (
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import requests
 
+from config import GIGA_API_KEY, LLM_PROVIDER
+
 # from gigachat import GigaChat
 # from config import GIGA_API_KEY
 
@@ -101,6 +103,27 @@ def gen_questions(chunks, n, m, k):
     }}
            
     """
+
+    if LLM_PROVIDER == "gigachat":
+        from gigachat import GigaChat
+        with GigaChat(
+            credentials=GIGA_API_KEY,
+            verify_ssl_certs=False
+        ) as giga:
+            response = giga.chat(prompt)
+        return response.choices[0].message.content
+    else:
+        url = "http://localhost:1234/v1/chat/completions"
+        payload = {
+            "model": "qwen/qwen2.5-vl-7b",
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        response = requests.post(url, json=payload)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+
+
+
     # для GigaChat
     # with GigaChat(credentials=GIGA_API_KEY, verify_ssl_certs=False) as giga:
     #     response = giga.chat(prompt)
@@ -108,15 +131,15 @@ def gen_questions(chunks, n, m, k):
     # return response.choices[0].message.content
 
     # локальная модель через LM Studio
-    url = "http://localhost:1234/v1/chat/completions"
+    # url = "http://localhost:1234/v1/chat/completions"
 
-    payload = {
-        "model": "qwen/qwen2.5-vl-7b",  # имя модели
-        "messages": [{"role": "user", "content": prompt}],
-    }
+    # payload = {
+    #     "model": "qwen/qwen2.5-vl-7b",  # имя модели
+    #     "messages": [{"role": "user", "content": prompt}],
+    # }
 
-    response = requests.post(url, json=payload)
-    response.raise_for_status()
+    # response = requests.post(url, json=payload)
+    # response.raise_for_status()
 
-    result = response.json()
-    return result["choices"][0]["message"]["content"]
+    # result = response.json()
+    # return result["choices"][0]["message"]["content"]
