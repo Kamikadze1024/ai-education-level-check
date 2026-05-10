@@ -73,11 +73,11 @@ def get_questions(request: QuestionsRequest):
     except HTTPException:
         raise  # пробрасываем дальше, не перехватываем
 
-    except Exception:
+    except Exception as exc:
 
         raise HTTPException(
             status_code=500,
-            detail="Что-то пошло не так при генерации вопросов...",
+            detail=f"Что-то пошло не так при генерации вопросов... {str(exc)}",
         )
 
 

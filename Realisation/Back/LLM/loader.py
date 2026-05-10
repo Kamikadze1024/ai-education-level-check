@@ -8,10 +8,7 @@ import requests
 
 from config import GIGA_API_KEY, LLM_PROVIDER
 
-# from gigachat import GigaChat
-# from config import GIGA_API_KEY
-
-
+# загрузка базы знаний
 def loadKnownBase(directory_path):
     """загрузка всех файлов из директории"""
 
@@ -68,6 +65,7 @@ def loadKnownBase(directory_path):
     return chunks
 
 
+# сгенерировать список вопросов
 def gen_questions(chunks, n, m, k):
     """генерация вопросов"""
 
@@ -106,6 +104,12 @@ def gen_questions(chunks, n, m, k):
 
     if LLM_PROVIDER == "gigachat":
         from gigachat import GigaChat
+        print(f"key={GIGA_API_KEY}")
+
+        # если ключ не загрузился из файла
+        if GIGA_API_KEY is None:
+            raise Exception("Empty GIGA_CHAT_API_KEY")
+
         with GigaChat(
             credentials=GIGA_API_KEY,
             verify_ssl_certs=False
