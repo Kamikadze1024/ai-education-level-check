@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI EdTech Exam</title>
+
+  <!-- Google Fonts: Syne (display) + DM Sans (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <!-- Phosphor Icons (CDN) -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+
+  <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+<body>
+
+  <!-- ░░░ TOAST CONTAINER ░░░ -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ░░░ GLOBAL OVERLAY (modals backdrop) ░░░ -->
+  <div id="overlay" class="overlay hidden"></div>
+
+  <!-- ░░░ MODAL ░░░ -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal__card">
+      <div id="modal-icon" class="modal__icon"></div>
+      <h2 id="modal-title" class="modal__title"></h2>
+      <p  id="modal-body"  class="modal__body"></p>
+      <div class="modal__actions">
+        <button id="modal-ok" class="btn btn--primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ░░░ LOADING SCREEN ░░░ -->
+  <div id="loading-screen" class="loading-screen">
+    <div class="loading-screen__logo">
+      <span class="logo-mark">⬡</span>
+      <span class="logo-text">AI EdTech Exam</span>
+    </div>
+    <div class="loading-screen__spinner">
+      <div class="spinner spinner--lg"></div>
+    </div>
+  </div>
+
+  <!-- ░░░ APP ROOT ░░░ -->
+  <div id="app" class="app hidden">
+
+    <!-- ════════ LOGIN PAGE ════════ -->
+    <section id="page-login" class="page page--login active">
+      <div class="login__bg">
+        <div class="login__orb login__orb--1"></div>
+        <div class="login__orb login__orb--2"></div>
+        <div class="login__orb login__orb--3"></div>
+      </div>
+
+      <!-- Theme toggle -->
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <i class="ph ph-sun" id="theme-icon-sun"></i>
+        <i class="ph ph-moon" id="theme-icon-moon"></i>
+      </button>
+
+      <div class="login__card">
+        <!-- Logo -->
+        <div class="login__logo">
+          <div class="login__logo-mark">⬡</div>
+          <div class="login__logo-text">
+            <span class="login__logo-title">AI EdTech</span>
+            <span class="login__logo-sub">Exam Platform</span>
+          </div>
+        </div>
+
+        <h1 class="login__heading">Добро пожаловать</h1>
+        <p class="login__subheading">Введите учётные данные для входа</p>
+
+        <!-- Form -->
+        <div class="login__form">
+          <div class="field">
+            <label class="field__label" for="input-login">
+              <i class="ph ph-user"></i> Логин
+            </label>
+            <input
+              id="input-login"
+              class="field__input"
+              type="text"
+              placeholder="Введите логин"
+              autocomplete="username"
+            />
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="input-password">
+              <i class="ph ph-lock"></i> Пароль
+            </label>
+            <div class="field__password-wrap">
+              <input
+                id="input-password"
+                class="field__input"
+                type="password"
+                placeholder="Введите пароль"
+                autocomplete="current-password"
+              />
+              <button class="field__eye" id="toggle-password" type="button" aria-label="Показать пароль">
+                <i class="ph ph-eye" id="eye-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me" class="checkbox-input" />
+            <span class="checkbox-box"></span>
+            <span class="checkbox-text">Запомнить меня</span>
+          </label>
+
+          <div id="login-error" class="error-banner hidden">
+            <i class="ph ph-warning-circle"></i>
+            <span id="login-error-text">Неверный логин или пароль</span>
+          </div>
+
+          <button id="btn-login" class="btn btn--primary btn--full btn--lg">
+            <span class="btn__text">Войти</span>
+            <span class="btn__loader spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════ ADMIN LAYOUT ════════ -->
+    <section id="page-admin" class="page page--admin hidden">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar__logo">
+          <span class="logo-mark">⬡</span>
+          <span class="sidebar__logo-text">AI EdTech</span>
+        </div>
+
+        <nav class="sidebar__nav">
+          <button class="sidebar__item active" data-panel="upload">
+            <i class="ph ph-upload-simple"></i>
+            <span>База знаний</span>
+          </button>
+          <button class="sidebar__item" data-panel="generate">
+            <i class="ph ph-magic-wand"></i>
+            <span>Генерация</span>
+          </button>
+          <button class="sidebar__item" data-panel="questions">
+            <i class="ph ph-list-checks"></i>
+            <span>Вопросы</span>
+          </button>
+        </nav>
+
+        <div class="sidebar__footer">
+          <button class="sidebar__logout" id="admin-logout">
+            <i class="ph ph-sign-out"></i>
+            <span>Выйти</span>
+          </button>
+          <button class="theme-toggle theme-toggle--sidebar" id="theme-toggle-admin" aria-label="Toggle theme">
+            <i class="ph ph-sun" id="theme-icon-sun-admin"></i>
+            <i class="ph ph-moon" id="theme-icon-moon-admin"></i>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <main class="admin-main">
+
+        <!-- Header -->
+        <header class="admin-header">
+          <div>
+            <h2 class="admin-header__title" id="admin-panel-title">Загрузка базы знаний</h2>
+            <p class="admin-header__sub" id="admin-panel-sub">Загрузите документ для генерации вопросов</p>
+          </div>
+          <div class="admin-header__badge">
+            <i class="ph ph-shield-check"></i> Администратор
+          </div>
+        </header>
+
+        <!-- ── PANEL: Upload ── -->
+        <div id="panel-upload" class="panel active">
+          <div class="upload-zone" id="upload-zone">
+            <div class="upload-zone__inner">
+              <div class="upload-zone__icon">
+                <i class="ph ph-file-arrow-up"></i>
+              </div>
+              <p class="upload-zone__title">Перетащите файл сюда</p>
+              <p class="upload-zone__sub">или нажмите для выбора</p>
+              <p class="upload-zone__formats">PDF • TXT • DOC • DOCX</p>
+              <input
+                type="file"
+                id="file-input"
+                accept=".pdf,.txt,.doc,.docx"
+                class="upload-zone__input"
+              />
+            </div>
+          </div>
+
+          <div id="upload-file-info" class="file-info hidden">
+            <div class="file-info__card">
+              <i class="ph ph-file-text file-info__icon"></i>
+              <div class="file-info__details">
+                <span id="file-info-name" class="file-info__name"></span>
+                <span id="file-info-size" class="file-info__size"></span>
+              </div>
+              <button class="file-info__remove" id="btn-remove-file">
+                <i class="ph ph-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <div id="upload-progress" class="progress-wrap hidden">
+            <div class="progress-bar">
+              <div class="progress-bar__fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-label" id="progress-label">Загрузка...</span>
+          </div>
+
+          <div id="upload-actions" class="upload-actions hidden">
+            <button id="btn-upload" class="btn btn--primary btn--lg">
+              <i class="ph ph-cloud-arrow-up"></i>
+              <span class="btn__text">Загрузить файл</span>
+              <span class="btn__loader spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── PANEL: Generate ── -->
+        <div id="panel-generate" class="panel hidden">
+          <div class="generate-grid">
+            <div class="gen-card">
+              <div class="gen-card__icon"><i class="ph ph-question"></i></div>
+              <label class="gen-card__label">Количество вопросов</label>
+              <div class="spinbox">
+                <button class="spinbox__btn" data-target="num-questions" data-delta="-1">−</button>
+                <input class="spinbox__input" id="num-questions" type="number" value="10" min="1" max="100" />
+                <button class="spinbox__btn" data-target="num-questions" data-delta="1">+</button>
+              </div>
+            </div>
+
+            <div class="gen-card">
+              <div class="gen-card__icon"><i class="ph ph-list-bullets"></i></div>
+              <label class="gen-card__label">Вариантов ответа на вопрос</label>
+              <div class="spinbox">
+                <button class="spinbox__btn" data-target="num-answers" data-delta="-1">−</button>
+                <input class="spinbox__input" id="num-answers" type="number" value="4" min="2" max="10" />
+                <button class="spinbox__btn" data-target="num-answers" data-delta="1">+</button>
+              </div>
+            </div>
+
+            <div class="gen-card">
+              <div class="gen-card__icon"><i class="ph ph-check-circle"></i></div>
+              <label class="gen-card__label">Правильных ответов на вопрос</label>
+              <div class="spinbox">
+                <button class="spinbox__btn" data-target="num-correct" data-delta="-1">−</button>
+                <input class="spinbox__input" id="num-correct" type="number" value="1" min="1" max="10" />
+                <button class="spinbox__btn" data-target="num-correct" data-delta="1">+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="generate-action">
+            <button id="btn-generate" class="btn btn--primary btn--xl">
+              <i class="ph ph-magic-wand"></i>
+              <span class="btn__text">Сгенерировать вопросы</span>
+              <span class="btn__loader spinner hidden"></span>
+            </button>
+          </div>
+
+          <div id="generate-progress" class="generate-progress hidden">
+            <div class="spinner spinner--lg"></div>
+            <p>Генерируем вопросы, пожалуйста подождите…</p>
+          </div>
+        </div>
+
+        <!-- ── PANEL: Questions ── -->
+        <div id="panel-questions" class="panel hidden">
+          <div id="questions-list" class="questions-list"></div>
+
+          <div class="questions-actions">
+            <button id="btn-save-questions" class="btn btn--primary btn--lg">
+              <i class="ph ph-floppy-disk"></i>
+              <span class="btn__text">Подтвердить и сохранить</span>
+              <span class="btn__loader spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+
+      </main>
+    </section>
+
+    <!-- ════════ STUDENT LAYOUT ════════ -->
+    <section id="page-student" class="page page--student hidden">
+
+      <!-- Header -->
+      <header class="student-header">
+        <div class="student-header__logo">
+          <span class="logo-mark">⬡</span>
+          <span>AI EdTech Exam</span>
+        </div>
+        <div class="student-header__right">
+          <button class="theme-toggle" id="theme-toggle-student" aria-label="Toggle theme">
+            <i class="ph ph-sun" id="theme-icon-sun-student"></i>
+            <i class="ph ph-moon" id="theme-icon-moon-student"></i>
+          </button>
+          <div class="student-header__badge">
+            <i class="ph ph-student"></i> Студент
+          </div>
+          <button class="btn btn--ghost btn--sm" id="student-logout">
+            <i class="ph ph-sign-out"></i> Выйти
+          </button>
+        </div>
+      </header>
+
+      <main class="student-main">
+
+        <!-- ── Exams List ── -->
+        <div id="student-panel-exams" class="student-panel active">
+          <div class="student-hero">
+            <h1 class="student-hero__title">Доступные экзамены</h1>
+            <p class="student-hero__sub">Выберите экзамен для прохождения</p>
+          </div>
+
+          <div id="exams-loading" class="exams-loading">
+            <div class="spinner spinner--lg"></div>
+            <p>Загружаем список экзаменов…</p>
+          </div>
+
+          <div id="exams-table-wrap" class="exams-table-wrap hidden">
+            <table class="exams-table">
+              <thead>
+                <tr>
+                  <th class="exams-table__select">Выбрать</th>
+                  <th>ID экзамена</th>
+                  <th>Статус</th>
+                </tr>
+              </thead>
+              <tbody id="exams-tbody"></tbody>
+            </table>
+
+            <div class="exams-actions">
+              <button id="btn-start-exam" class="btn btn--primary btn--lg" disabled>
+                <i class="ph ph-play"></i>
+                Начать экзамен
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Exam Questions ── -->
+        <div id="student-panel-exam" class="student-panel hidden">
+          <div class="student-hero">
+            <button class="btn btn--ghost btn--sm" id="btn-back-to-exams">
+              <i class="ph ph-arrow-left"></i> Назад
+            </button>
+            <h1 class="student-hero__title" id="exam-title">Экзамен</h1>
+            <p class="student-hero__sub">Выберите правильные ответы и нажмите «Сдать экзамен»</p>
+          </div>
+
+          <div id="exam-questions-list" class="exam-questions-list"></div>
+
+          <div class="exam-actions">
+            <button id="btn-submit-exam" class="btn btn--primary btn--xl">
+              <i class="ph ph-paper-plane-tilt"></i>
+              <span class="btn__text">Сдать экзамен</span>
+              <span class="btn__loader spinner hidden"></span>
+            </button>
+          </div>
+        </div>
+
+      </main>
+    </section>
+
+  </div><!-- /#app -->
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

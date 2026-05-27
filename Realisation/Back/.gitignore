@@ -1,0 +1,27 @@
+# Секреты
+.env
+
+# Загруженные файлы
+uploads/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Виртуальное окружение
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+.vscode/settings.json
+
+# macOS
+.DS_Store
+
+# Логи
+app.log
